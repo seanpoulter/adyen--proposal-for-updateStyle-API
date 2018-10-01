@@ -4442,6 +4442,7 @@ define( 'securedFields_config',
                 // Set the appropriate value for what is considered a correct hosting URL and check that a it matches the document origin & pathname
                 // If it doesn't match then we return from this function and no further action can be taken
                 // (checkoutShopperUrl is initialised when this file asset is served)
+                /*
                 permittedSrc = checkoutShopperUrl + 'assets/html/' + originKey + '/securedFields.' + '1.3.1' + '.html';
 
                 if(permittedSrc !== fullDocURL){
@@ -4450,6 +4451,7 @@ define( 'securedFields_config',
                     }
                     return;
                 }
+                */
 
                 if(_b$dl && window.console && window.console.log){
                     window.console.log('\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
