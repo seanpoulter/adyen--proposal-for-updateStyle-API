@@ -2532,7 +2532,7 @@ define( 'validationsCCSecurityCode', ['validationUtils'], function (ValUtils) {
     return ccCVC;
 } );
 /* global define, _b$dl */
-define( 'processStyles', [], function () {
+define( 'processStyles', ['DOM'], function (DOM) {
 
     "use strict";
     var Utils = {};
@@ -2583,17 +2583,22 @@ define( 'processStyles', [], function () {
         }
     };
 
-    Utils.process = function(pCssStyles){
-
-        // Check if styles have been sent and push them to stylesheet
-        if (pCssStyles) {
-
-            //Check style object for URLs, if no URLs are found, render the styles
-            var hasURLS = __checkForURLS(pCssStyles);
-
-            (!hasURLS)? __renderStyles(pCssStyles) : __noop();
-        }
+    // Check if there are styles that do not contain URLs
+    var __canRenderStyles = function(pCssStyles) {
+        return pCssStyles && !__checkForURLS(pCssStyles);
     };
+
+    Utils.process = function(pCssStyles) {
+        if (__canRenderStyles(pCssStyles)) {
+            __renderStyles(pCssStyles);
+        }
+    }
+
+    Utils.update = function(pCssStyles){
+        if (__canRenderStyles(pCssStyles)) {
+            __replaceStyles(pCssStyles);
+        }
+    }
 
     // This function checks if merchants are passing in any unwanted urls (XSS protection)
     var __checkForURLS = function(styleObject) {
@@ -2635,80 +2640,91 @@ define( 'processStyles', [], function () {
     };
 
     // This function takes the styles from a style Object and transforms them into a css property
-    var __renderStyles = function(styleObject) {
+    var __renderStyles = __validateAndSetStyles(__pushStylesToSheet);
 
-        //Get keys and values from style Object then check which style we are dealing with (and if it is an accepted style)
+    var __replaceStyles = __validateAndSetStyles(__replaceStylesInSheet);
 
-        var __objectBaseKeys = Object.keys(styleObject); //Use this to render the base, error etc.
+    function __validateAndSetStyles(setterFn) {
+        return function(styleObject) {
 
-        for (var i = 0; i < __objectBaseKeys.length; i++){
+            //Get keys and values from style Object then check which style we are dealing with (and if it is an accepted style)
 
-            var stylingKey = __objectBaseKeys[i],
-                customStyles = [],
-                objectKeys = Object.keys(styleObject[stylingKey]),
-                objectValues = [];
+            var __objectBaseKeys = Object.keys(styleObject); //Use this to render the base, error etc.
 
-            for(var prop in styleObject[stylingKey]){
+            for (var i = 0; i < __objectBaseKeys.length; i++){
 
-                if(styleObject[stylingKey].hasOwnProperty(prop)){
+                var stylingKey = __objectBaseKeys[i],
+                    customStyles = [],
+                    objectKeys = Object.keys(styleObject[stylingKey]),
+                    objectValues = [];
 
-                    objectValues.push(styleObject[stylingKey][prop]);
-                }
-            }
+                for(var prop in styleObject[stylingKey]){
 
-            // Base styles key + prop
-            for (var o = 0;  o < objectKeys.length; o++) {
+                    if(styleObject[stylingKey].hasOwnProperty(prop)){
 
-                // Build stylesheet from base styles:
-                var objectKeyName = objectKeys[ o ];
-                var objectValue = objectValues[ o ];
-
-                var cssValue = __acceptedStyleDefinitions[ objectKeyName ];
-
-                // Check if cssValue is accepted;
-                if ( cssValue ) {
-                    var combinedCss = cssValue + ":" + objectValue + ";";
-                    customStyles.push( combinedCss );
-                    // window.console.log("customStyles for " + __styleSelectors[stylingKey] + " now consists of " + customStyles);
-                } else {
-                    if(_b$dl && window.console && window.console.log){
-                        window.console.log('@@@ secureFields::__renderStyles:: This style value is not accepted: ',objectKeyName);
+                        objectValues.push(styleObject[stylingKey][prop]);
                     }
                 }
-            }
 
-            // Check if the base selector has a value in our selectors array and if customstyles is set, if so, render css for this key
-            if (__styleSelectors[stylingKey] && customStyles) {
-                __pushStylesToSheet(customStyles, __styleSelectors[stylingKey]);
+                // Base styles key + prop
+                for (var o = 0;  o < objectKeys.length; o++) {
+
+                    // Build stylesheet from base styles:
+                    var objectKeyName = objectKeys[ o ];
+                    var objectValue = objectValues[ o ];
+
+                    var cssValue = __acceptedStyleDefinitions[ objectKeyName ];
+
+                    // Check if cssValue is accepted;
+                    if ( cssValue ) {
+                        var combinedCss = cssValue + ":" + objectValue + ";";
+                        customStyles.push( combinedCss );
+                        // window.console.log("customStyles for " + __styleSelectors[stylingKey] + " now consists of " + customStyles);
+                    } else {
+                        if(_b$dl && window.console && window.console.log){
+                            window.console.log('@@@ secureFields::__renderStyles:: This style value is not accepted: ',objectKeyName);
+                        }
+                    }
+                }
+
+                // Check if the base selector has a value in our selectors array and if customstyles is set, if so, render css for this key
+                if (__styleSelectors[stylingKey] && customStyles) {
+
+                    // First join all styles into 1 string
+                    var cssString = customStyles.join("");
+
+                    setterFn(cssString, __styleSelectors[stylingKey], stylingKey);
+                }
             }
         }
     };
 
-    var __pushStylesToSheet = function(cssRules, cssSelector) {
-
-        // First join all styles into 1 string
-        var cssString = cssRules.join("");
+    function __pushStylesToSheet(cssString, cssSelector, stylingKey) {
 
         //Create the stylesheet
-        var sheet = (function() {
-            // Create the <style> tag
-            var style = document.createElement("style");
-
-            // Add a media (and/or media query) here if you'd like!
-            // style.setAttribute("media", "screen")
-            // style.setAttribute("media", "only screen and (max-width : 1024px)")
-
-            // WebKit hack :(
-            style.appendChild(document.createTextNode(""));
-
-            // Add the <style> element to the page
-            document.head.appendChild(style);
-
-            return style.sheet;
-        })();
+        var sheet = __createSheet(stylingKey);
 
         __addCSSRule(sheet, cssSelector, cssString);
     };
+
+    function __createSheet(stylingKey) {
+        // Create the <style> tag
+        var style = document.createElement("style");
+
+        // Add a media (and/or media query) here if you'd like!
+        // style.setAttribute("media", "screen")
+        // style.setAttribute("media", "only screen and (max-width : 1024px)")
+
+        style.setAttribute('data-styling-key', stylingKey);
+
+        // WebKit hack :(
+        style.appendChild(document.createTextNode(""));
+
+        // Add the <style> element to the page
+        document.head.appendChild(style);
+
+        return style.sheet;
+    }
 
     // Function to add a rule to the stylesheet we created
     var __addCSSRule = function(sheet, selector, rules){
@@ -2750,6 +2766,29 @@ define( 'processStyles', [], function () {
             }
         }
     };
+
+    function __replaceStylesInSheet(cssString, cssSelector, stylingKey) {
+        var sheet = __findSheet(stylingKey);
+        if (sheet) {
+            __removeCSSRules(sheet);
+        } else {
+            sheet = __createSheet(stylingKey);
+        }
+                
+        __addCSSRule(sheet, cssSelector, cssString);
+    }
+    
+    function __findSheet(stylingKey) {
+        var element = DOM._selectOne(document, '[data-styling-key="' + stylingKey + '"]');
+        return element.sheet;
+    }
+
+    function __removeCSSRules(sheet) {
+        var numCssRules = sheet.cssRules.length;
+        for (var i = 0; i < numCssRules; i++) {
+            sheet.deleteRule(0);
+        }
+    }
 
     return Utils;
 } );
@@ -4488,7 +4527,9 @@ define( 'securedFields_config',
                     csfCommObj.hasOwnProperty('brand') ||
                     csfCommObj.hasOwnProperty('setValue') ||
                     csfCommObj.hasOwnProperty('_b$dl') ||
-                    csfCommObj.hasOwnProperty('click'))? true : false;
+                    csfCommObj.hasOwnProperty('click') ||
+                    csfCommObj.hasOwnProperty('styleObject')
+                )? true : false;
 
                 ///////////////// MAIN 'CONFIG' MESSAGE /////////////////////////////////////////
                 var handleConfigMsg = function(){
@@ -4639,6 +4680,7 @@ define( 'securedFields_config',
                             !csfCommObj.hasOwnProperty('brand') ||
                             !csfCommObj.hasOwnProperty('setValue') ||
                             !csfCommObj.hasOwnProperty('click') ||
+                            !csfCommObj.hasOwnProperty('styleObject') ||
                             !csfCommObj.hasOwnProperty('_b$dl')) ){
                         if(window.console && window.console.error){
                             window.console.error("ERROR: securedFields:: postMessage special data is incorrect: type 4");
@@ -4749,6 +4791,9 @@ define( 'securedFields_config',
                         that.fireEvent(inputEl, 'input');
                     }
 
+                    if(csfCommObj.styleObject) {
+                        ProcessStyles.update(csfCommObj.styleObject);
+                    }
 
                     if(csfCommObj.hasOwnProperty('_b$dl')){
 

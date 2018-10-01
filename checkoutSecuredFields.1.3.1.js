@@ -1472,6 +1472,15 @@ __define('checkoutSecuredFields_core',
                 }
             };
 
+            __sharedScope.updateStyle = function (pTxVariant, styleObject) {
+                var dataObj = {
+                    fieldType: null,    // Hack to prevent "type 4" error
+                    numKey: null,       // ^
+                    styleObject: styleObject,
+                    txVariant: pTxVariant,
+                };
+                __sharedScope.postMessageToAllIframes(pTxVariant, dataObj);
+            }
 
             // iOS thing re. iOS/Safari blur & focus bug
             __sharedScope.broadcastClickEvent = function(pTxVariant, pFieldType){
@@ -1556,6 +1565,10 @@ __define('checkoutSecuredFields_core',
 
                 __sharedScope.setFocusOnFrame(pTxVariant, pHostedFieldId, 'Card PM selected');
             };
+
+            that.updateStyle = function (pTxVariant, styleObject) {
+                __sharedScope.updateStyle(pTxVariant, styleObject);
+            }
 
             ////// EVENTS THE USER (the one who initialises CSF) CAN SUBSCRIBE TO
             that.onLoad = function(pCallbackFn){
