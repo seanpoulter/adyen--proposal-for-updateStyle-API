@@ -1,5 +1,7 @@
 
-window._a$checkoutShopperUrl = "https://checkoutshopper-test.adyen.com/checkoutshopper/";
+//window._a$checkoutShopperUrl = "https://checkoutshopper-test.adyen.com/checkoutshopper/";
+window._a$checkoutShopperUrl = "http://127.0.0.1:8887/";
+
 /* global chckt, define, exports, module, self */
 (function(){
 
@@ -456,7 +458,7 @@ __define( 'checkoutSecuredFields_config', ['DOM', 'Utils', 'Constants', 'shims']
 
             var iframeSrc = _a$adyenURL + 'assets/html/' + configObj.originKey + '/securedFields.' + '1.3.1' + '.html' + csfPublicKeyToken;
             //TODO###### FOR QUICK LOCAL TESTING FROM xamples_csfOnly/sf DIR - COMMENT IN CODE BELOW ####################
-            // iframeSrc = './sf/securedFields.' + '1.3.1' + '.html';
+            iframeSrc = './adyen/sf/securedFields.' + '1.3.1' + '.html';
             //TODO#######################################################################################################
 
             if (window._b$dl && window.console && window.console.log) {
