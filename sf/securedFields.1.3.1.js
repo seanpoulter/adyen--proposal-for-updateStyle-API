@@ -1933,43 +1933,6 @@ define( 'validationsCCDate', ['validationUtils'], function (ValUtils) {
     return ccDate;
 } );
 
-// if ( window.console && window.console.log ) {
-//
-//     var sepOldCurs = checkSeparator(__oldCursor);
-//
-//     var oldValLen = __oldValue.length;
-//     var newValLen = newValue.length;
-//     var newValLenMinusOldValLen = (newValue.length - __oldValue.length);
-//
-//     var oldCursurPlusNewValLenMinusOldValLen = __oldCursor + newValLenMinusOldValLen;
-//
-//     var checkSepOldCursurPlusNewValLenMinusOldValLen = checkSeparator(oldCursurPlusNewValLenMinusOldValLen);
-//
-//     var unmaskedNewVal = unmask(newValue);
-//     window.console.log( '### validationsCCDate2::inputDate:: unmaskedNewVal=',unmaskedNewVal );
-//     window.console.log( '### validationsCCDate2::inputDate:: unmaskedNewVal.length=',unmask(newValue).join('').length );
-//
-//     var unmaskNewVal = unmask(newValue).join('').length;
-//     var unmaskOldVal = unmask(__oldValue).join('').length;
-//     var unmaskNewMinusUnmaskOld = unmaskNewVal - unmaskOldVal;
-//
-//     window.console.log( '\n### validationsCCDate2::inputDate:: ' );
-//     window.console.log( '### validationsCCDate2::inputDate:: *** __oldCursor=',__oldCursor );
-//
-//     window.console.log( '### validationsCCDate2::inputDate:: *** checkSeparator(__oldCursor)=',sepOldCurs );
-//
-//     window.console.log( '### validationsCCDate2::inputDate:: newValLen=',newValLen );
-//     window.console.log( '### validationsCCDate2::inputDate:: oldValLen=',oldValLen );
-//     window.console.log( '### validationsCCDate2::inputDate:: newValLenMinusOldValLen=',newValLenMinusOldValLen );
-//     window.console.log( '### validationsCCDate2::inputDate:: *** checkSepOldCursurPlusNewValLenMinusOldValLen=',checkSepOldCursurPlusNewValLenMinusOldValLen );
-//
-//     window.console.log( '### validationsCCDate2::inputDate:: unmaskOldVal=',unmaskOldVal );
-//     window.console.log( '### validationsCCDate2::inputDate:: unmaskNewVal=',unmaskNewVal );
-//     window.console.log( '### validationsCCDate2::inputDate:: *** unmaskNewMinusUnmaskOld=',unmaskNewMinusUnmaskOld);
-//
-//     window.console.log( '### validationsCCDate2::inputDate:: new cursor pos =',__oldCursor + '-' + sepOldCurs + '+' + checkSepOldCursurPlusNewValLenMinusOldValLen + '+' + unmaskNewMinusUnmaskOld);
-//
-// }
 /* global define, require, genTime, __logVal2 */
 define( 'validationsCCMonth', ['validationUtils'], function (ValUtils) {
     "use strict";
